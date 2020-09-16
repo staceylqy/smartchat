@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartChat</title>
+    <link rel="stylesheet" href="css/stylesheet.css">
+</head>
+<body>
+    <!-- 背景 -->
+    <div class="background">
+        <h1 class="background_title">SmartChat</h1>      
+    </div>
+
+    <!-- 個人情報編集 -->
+    <div class="infolayout">
+        <div class="personalinfo">
+            <!-- メッセージ新着お知らせ -->
+            <div class="newmessagealart"></div>
+            <div class="icon icon1">
+                <h3 class="newmessage">新着メッセージ<span class="msgnoone">0</span>件</h3>
+                <img class="iconimg" data-img="0" src="imgs/icon1.png">
+                <input placeholder="ユーザー１" id="user1">
+                <button id ="edit1">名前編集</button>
+            </div>
+        </div>
+
+        <div class="personalinfo">
+            <!-- メッセージ新着お知らせ -->
+            <div class="newmessagealart"></div>
+            <div class="icon icon2">
+                <h3 class="newmessage">新着メッセージ<span class="msgnotwo">0</span>件</h3>
+                <img class="iconimg" data-img="1" src="imgs/icon2.png">
+                <input placeholder="ユーザー２" id="user2">
+                <button id ="edit2">名前編集</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- チャットボックス -->
+    <div id="output">
+        
+    </div> 
+  
+
+    <!-- 送信ボックス -->
+    <div class="sendboxlayout">
+        <div class="sendbox1">
+            <textarea id="text" class="text1" cols="39" rows="5" placeholder="ここにユーザー1の送信内容を入力してください"></textarea>
+            <button id="send" class="send1">送信</button>
+        </div>
+        <div class="sendbox2">
+            <textarea id="text" class="text2" cols="39" rows="5" placeholder="ここにユーザー2の送信内容を入力してください"></textarea>
+            <button id="send" class="send2">送信</button>
+        </div>
+    </div>
+
+</body>
+</html>
+
+ <!-- JQuery -->
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+ <script src="js/chatscript.js"></script>
+ <!-- JQuery -->
+
+ <!--** 以下Firebase **-->
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyCswJ_mD1w1sSRjY9x4xvGR0aa0Qs_norM",
+    authDomain: "smartchat-3212a.firebaseapp.com",
+    databaseURL: "https://smartchat-3212a.firebaseio.com",
+    projectId: "smartchat-3212a",
+    storageBucket: "smartchat-3212a.appspot.com",
+    messagingSenderId: "663650779647",
+    appId: "1:663650779647:web:4fe8196604bfcb0ae4a7ca"
+  };
+  
+  // Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const ref = firebase.database().ref("BOOK"); //.ref()=ユニークキーを自動で振ってください
+  
+ //時間
+ function CurentTime()
+    { 
+        var now = new Date();
+       
+        var year = now.getFullYear();       //年
+        var month = now.getMonth() + 1;     //月
+        var day = now.getDate();            //日
+       
+        var hh = now.getHours();            //时
+        var mm = now.getMinutes();          //分
+       
+        var clock = year + "-";
+       
+        if(month < 10)
+            clock += "0";
+       
+        clock += month + "-";
+       
+        if(day < 10)
+            clock += "0";
+           
+        clock += day + " ";
+       
+        if(hh < 10)
+            clock += "0";
+           
+        clock += hh + ":";
+        if (mm < 10) clock += '0'; 
+        clock += mm; 
+
+        //console.log("Hi");
+        //console.log(clock);
+        return(clock); 
+    }  
+
+ //アイコン処理
+ let d=0;
+ let e=1;
+  const img = ["icon1.png","icon2.png"];
+  $(".iconimg").on("click",function(){
+    d = $(this).attr("data-img");
+    e = $(this).attr("data-img");
+  });
+
+//User1
+//名前編集
+var uname1 = "ユーザー1"
+//ユーザー1の名前編集の値を受ける
+$("#edit1").on("click",function(){
+        uname1 = $("#user1").val();
+        alert("成功的にユーザー1の名前を編集しました！")
+});
+
+//関数定義
+function sendone(){
+    //ユーザー1の名前編集の値を受ける
+    // $("#edit1").on("click",function(){
+    //     uname1 = $("#user1").val();
+    //     alert("成功的にユーザー1の名前を編集しました！")
+    // });
+
+    const text1 = $(".text1").val();
+
+    const msgone = {
+        uname:uname1 +"userone",
+        text:text1,
+        icon:d
+    };
+    ref.push(msgone);
+    //ref.set(msg); //set=決まった名前、push=ユニーク
+}
+
+//ユーザーの新着メッセージ
+let a = 0;
+let b = 0;
+//文字を送信
+$(".send1").on("click",function(){
+    sendone();
+
+    a = a+1;
+    //ユーザー2の新着メッセージ件数を更新します
+    $(".msgnotwo").text(function(no){
+        no = a;
+        $(".msgnotwo").css({"font-weight":"bold","color":"red","font-size":"18px"});
+        return no;
+    });
+
+    //ユーザー1がメッセージを既読して、新着メッセージ件数が0件になる
+    $(".send2").on("click",function(){
+        a = 0;
+        $(".msgnotwo").text(function(no){
+            no = a;
+            $(".msgnotwo").css({"font-weight":"lighter","color":"black","font-size":"13px"});
+            return no;
+        });
+    });
+    
+    $(".text1").val('');
+    
+});
+
+//User2
+
+//名前編集
+// const uname = $("#uname").val();
+var uname2 = "ユーザー2"
+$("#edit2").on("click",function(){
+        uname2 = $("#user2").val();
+        alert("成功的にユーザー2の名前を編集しました！")
+});
+//関数定義
+function sendtwo(){
+
+    const text2 = $(".text2").val();
+
+    const msgtwo = {
+        uname:uname2+"usertwo",
+        text:text2,
+        icon:e
+    };
+    ref.push(msgtwo);
+    //ref.set(msg); //set=決まった名前、push=ユニーク
+}
+
+//文字を送信
+$(".send2").on("click",function(){
+    sendtwo();
+
+    b = b+1;
+    //ユーザー2の新着メッセージ件数を更新します
+    $(".msgnoone").text(function(no){
+        no = b;
+        $(".msgnoone").css({"font-weight":"bold","color":"red","font-size":"18px"});
+        return no;
+    });
+
+    //ユーザー2がメッセージを既読して、新着メッセージ件数が0件になる
+    $(".send1").on("click",function(){
+        b = 0;
+        $(".msgnoone").text(function(no){
+            no = b;
+            $(".msgnoone").css({"font-weight":"lighter","color":"black","font-size":"13px"});
+            return no;
+        });
+    });
+
+    $(".text2").val('');
+  });
+
+//受信処理
+ref.on("child_added",function(data){
+    const v = data.val(); //送信されたオブジェクトを取得
+    const k = data.key;　//ユニークキーの取得
+    //const h = '<p>'+v.uname+'<br>'+v.text+'</p>';
+    let h;
+    //To check whether there includes "userone" in v.uname
+    //If yes, then it is user1
+    if(v.uname.indexOf("userone") != -1){
+        h = '<dl id="'+k+'"><dt><img src="imgs/'+img[v.icon]+'" width="50"><br>'+v.uname.substr(0,v.uname.length-7)+'</dt><dt><div class="textbox1">'+v.text+'</div></dt><dt><div class="time">'+"&nbsp;送信時間：&nbsp;"+CurentTime()+'</div></dt></dl>';
+    }
+    //To check whether there includes "usertwo" in v.uname
+    //If yes, then it is user2
+    else if(v.uname.indexOf("usertwo") != -1){
+        h = '<div class="right"><dl id="'+k+'"><dt><img src="imgs/'+img[v.icon]+'" width="50"><br>'+v.uname.substr(0,v.uname.length-7)+'</dt><dt><div class="textbox2">'+v.text+'</div></dt><dt><div class="time">'+"&nbsp;送信時間：&nbsp;"+CurentTime()+'</div></dt></dl></div>';
+    }
+    
+    //$("#output").append( h );
+    var oWords = document.getElementById('output');
+    oWords.innerHTML = oWords.innerHTML + h;
+    oWords.scrollTop = oWords.scrollHeight;
+});
+
+</script>
